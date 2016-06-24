@@ -1,0 +1,6 @@
+--no-output
+-neko build.n
+-lib eweb
+eweb.Web
+eweb.Dispatch
+
