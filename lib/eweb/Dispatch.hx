@@ -462,7 +462,7 @@ class Dispatch {
 				var str = serialize(fields);
 				i.meta.add("dispatchConfig", [ { expr : EConst(CString(str)), pos : p } ], p);
 			}
-			return { expr : EUntyped ({ expr : ECall({ expr : EField(Context.makeExpr(Dispatch,p),"extractConfig"), pos : p },[obj]), pos : p }), pos : p };
+			return { expr : EUntyped ({ expr : ECall({ expr : EField(macro eweb.Dispatch,"extractConfig"), pos : p },[obj]), pos : p }), pos : p };
 		default:
 			Context.error("Configuration should be an anonymous object",p);
 		}
