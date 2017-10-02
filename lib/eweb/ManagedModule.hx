@@ -1,7 +1,9 @@
 package eweb;
 
-import eweb._impl.*;
 import neko.Web in W;
+#if (tora && experimental)
+import eweb._impl.*;
+#end
 
 class ManagedModule {
 	public static var cacheAvailable(default,null) = #if (tora && experimental) Web.isTora #else false #end;
