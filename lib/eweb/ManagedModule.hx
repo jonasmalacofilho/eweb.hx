@@ -90,18 +90,20 @@ class ManagedModule {
 		}
 	}
 
-	public static function addModuleFinalizer(finalize:Void->Void)
+	public static function addModuleFinalizer(finalize:Void->Void, ?name:String)
 	{
-		finalizers.push(finalize);
+		finalizers.push({ f:finalize, name:name });
 	}
 
 	public static function callFinalizers()
 	{
-		for (f in finalizers) {
+		for (i in finalizers) {
+			var name = i.name != null ? ${i.name} : 'unnamed';
+			log('executing finalizer: $name');
 			try
-				f()
+				i.f()
 			catch (e:Dynamic)
-				trace('ERROR thrown in finalizer, probable leak: $e');
+				log('ERROR thrown during finalizer, probable leak ($name): $e');
 		}
 	}
 
