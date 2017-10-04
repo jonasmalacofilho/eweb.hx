@@ -89,6 +89,14 @@ class ManagedModule {
 		if (cacheAvailable && cacheEnabled) {
 			W.cacheModule(null);
 			execute = null;
+
+			var share = new ToraShare<ToraCacheInfos>("tora-cache", function () return []);
+			var cache = share.get(true);
+			var infos = Lambda.find(cache, function (i) return Reflect.compareMethods(i.finalize, callFinalizers));
+			if (infos == null)
+				throw "ERROR: something went wrong here";
+			cache.remove(infos);
+			share.set(cache);
 		}
 	}
 
