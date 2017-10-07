@@ -31,7 +31,7 @@ class ManagedModule {
 			inUse : new neko.vm.Mutex(),
 			module : module,
 			mtime : mtime,
-			finalize : callFinalizers
+			finalize : _callFinalizers
 		};
 
 		execute = function () {
@@ -67,13 +67,16 @@ class ManagedModule {
 		share.set(keep);
 
 		if (gc.length > 0) {
-			log('dispatching thread for garbage collection');
+			for (i in gc) {
+				log('synchronousaly garbage collecting ${i.module.name} @ ${Date.fromTime(i.mtime)}');
+				i.finalize(true);
+			}
 			neko.vm.Thread.create(function () {
 				for (i in gc) {
-					log('garbage collecting ${i.module.name} @ ${Date.fromTime(i.mtime)}');
-					i.finalize();
+					log('asynchronously garbage collecting ${i.module.name} @ ${Date.fromTime(i.mtime)}');
+					i.finalize(false);
 				}
-				log('garbage collection done');
+				log('done with garbage collection');
 			});
 		}
 
@@ -92,7 +95,7 @@ class ManagedModule {
 
 			var share = new ToraShare<ToraCacheInfos>("tora-cache", function () return []);
 			var cache = share.get(true);
-			var infos = Lambda.find(cache, function (i) return Reflect.compareMethods(i.finalize, callFinalizers));
+			var infos = Lambda.find(cache, function (i) return Reflect.compareMethods(i.finalize, _callFinalizers));
 			if (infos == null)
 				throw "ERROR: something went wrong here";
 			cache.remove(infos);
@@ -100,20 +103,28 @@ class ManagedModule {
 		}
 	}
 
-	public static function addModuleFinalizer(finalize:Void->Void, ?name:String)
+	public static function addModuleFinalizer(finalize:Void->Void, ?name:String, ?sync=false)
 	{
-		finalizers.push({ f:finalize, name:name });
+		finalizers.push({ f:finalize, name:name, sync:sync });
 	}
 
 	public static function callFinalizers()
 	{
+		_callFinalizers(true);
+		_callFinalizers(false);
+	}
+
+	static function _callFinalizers(sync)
+	{
 		for (i in finalizers) {
-			var name = i.name != null ? ${i.name} : 'unnamed';
-			log('executing finalizer: $name');
-			try
-				i.f()
-			catch (e:Dynamic)
-				log('ERROR thrown during finalizer, probable leak ($name): $e');
+			if (sync == i.sync) {
+				var name = i.name != null ? ${i.name} : 'unnamed';
+				log('executing ${i.sync?"":"a"}sync finalizer: $name');
+				try
+					i.f()
+				catch (e:Dynamic)
+					log('ERROR thrown during finalizer, probable leak ($name): $e');
+			}
 		}
 	}
 

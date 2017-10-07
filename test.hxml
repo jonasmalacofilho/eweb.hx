@@ -3,4 +3,5 @@
 -lib eweb
 eweb.Web
 eweb.Dispatch
+eweb.ManagedModule
 
