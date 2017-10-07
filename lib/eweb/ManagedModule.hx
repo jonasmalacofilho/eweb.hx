@@ -67,14 +67,11 @@ class ManagedModule {
 		share.set(keep);
 
 		if (gc.length > 0) {
-			log('dispatching thread for garbage collection');
-			neko.vm.Thread.create(function () {
-				for (i in gc) {
-					log('garbage collecting ${i.module.name} @ ${Date.fromTime(i.mtime)}');
-					i.finalize();
-				}
-				log('garbage collection done');
-			});
+			for (i in gc) {
+				log('garbage collecting ${i.module.name} @ ${Date.fromTime(i.mtime)}');
+				i.finalize();
+			}
+			log('garbage collection done');
 		}
 
 		execute();
