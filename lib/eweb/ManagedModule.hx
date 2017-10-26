@@ -1,12 +1,10 @@
 package eweb;
 
 import neko.Web in W;
-#if (tora && experimental)
 import eweb._impl.*;
-#end
 
 class ManagedModule {
-	public static var cacheAvailable(default,null) = #if (tora && experimental) Web.isTora #else false #end;
+	public static var cacheAvailable(default,null) = #if tora Web.isTora #else false #end;
 	public static var cacheEnabled(get,never):Bool;
 		static inline function get_cacheEnabled() return execute != null;
 	public static var runningFromCache(default,null) = false;
@@ -16,7 +14,7 @@ class ManagedModule {
 
 	public static function runAndCache(f:Void->Void)
 	{
-#if (tora && experimental)
+#if tora
 		if (!cacheAvailable)
 			throw "ERROR: not available, not running on Tora";
 		if (cacheEnabled || execute != null)
@@ -48,7 +46,7 @@ class ManagedModule {
 		};
 		W.cacheModule(execute);
 
-		var share = new ToraShare<ToraCacheInfos>("tora-cache", function () return []);
+		var share = new ToraRawShare<ToraModuleInfos>("tora-cache", function () return []);
 		var cache = share.get(true);
 		
 		// gc: decide what to collect, but leave the actual cleanup to after the
@@ -77,17 +75,18 @@ class ManagedModule {
 		execute();
 		runningFromCache = true;
 #else
-		throw "ERROR: not available, not compiled with -lib tora -D experimental";
+			throw "ERROR: not available, not compiled with -lib tora";
 #end
 	}
 
 	public static function uncache()
 	{
+#if tora
 		if (cacheAvailable && cacheEnabled) {
 			W.cacheModule(null);
 			execute = null;
 
-			var share = new ToraShare<ToraCacheInfos>("tora-cache", function () return []);
+			var share = new ToraRawShare<ToraModuleInfos>("tora-cache", function () return []);
 			var cache = share.get(true);
 			var infos = Lambda.find(cache, function (i) return Reflect.compareMethods(i.finalize, callFinalizers));
 			if (infos == null)
@@ -95,6 +94,9 @@ class ManagedModule {
 			cache.remove(infos);
 			share.set(cache);
 		}
+#else
+			throw "ERROR: not available, not compiled with -lib tora";
+#end
 	}
 
 	public static function addModuleFinalizer(finalize:Void->Void, ?name:String)

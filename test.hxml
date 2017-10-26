@@ -1,6 +1,8 @@
 --no-output
 -neko build.n
 -lib eweb
+-lib tora
 eweb.Web
 eweb.Dispatch
+eweb.ManagedModule
 

@@ -1,7 +1,7 @@
 package eweb._impl;
 
 /*
-	Simplified version of tora.Share, loosing Persist.
+	Simplified version of tora.Share, losing persistence.
 	Based on and licensed as the original Tora.
 	Copyright (C) 2008-2016 Haxe Foundation
 
@@ -19,7 +19,7 @@ package eweb._impl;
 	License along with this library; if not, write to the Free Software
 	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-class ToraShare<T> {
+class ToraRawShare<T> {
 
 	var s : Dynamic;
 	public var name(default,null) : String;
