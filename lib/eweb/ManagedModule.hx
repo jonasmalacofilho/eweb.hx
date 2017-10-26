@@ -104,6 +104,15 @@ class ManagedModule {
 		finalizers.push({ f:finalize, name:name });
 	}
 
+	public static function removeModuleFinalizer(?finalize:Void->Void, ?name:String)
+	{
+		var filtred = [
+			for (f in finalizers)
+				if ((finalize == null || Reflect.compareMethods(f.f, finalize))
+						&& (name == null || f.name == name)) f ];
+		finalizers = filtred;
+	}
+
 	public static function callFinalizers()
 	{
 		for (i in finalizers) {
