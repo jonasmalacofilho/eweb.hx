@@ -78,8 +78,10 @@ abstract Web(W) from W {
 	public static function setCookie( key : String, value : String, ?expire: Date, ?domain: String, ?path: String, ?secure: Bool, ?httpOnly: Bool ) {
 		var buf = new StringBuf();
 		buf.add(value);
-		expire = DateTools.delta(expire, -getTimezoneDelta());
-		if( expire != null ) W.addPair(buf, "expires=", DateTools.format(expire, "%a, %d-%b-%Y %H:%M:%S GMT"));
+		if( expire != null ) {
+			expire = DateTools.delta(expire, -getTimezoneDelta());
+			W.addPair(buf, "expires=", DateTools.format(expire, "%a, %d-%b-%Y %H:%M:%S GMT"));
+		}
 		W.addPair(buf, "domain=", domain);
 		W.addPair(buf, "path=", path);
 		if( secure ) W.addPair(buf, "secure", "");
