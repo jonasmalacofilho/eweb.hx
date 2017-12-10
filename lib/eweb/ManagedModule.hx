@@ -95,7 +95,7 @@ class ManagedModule {
 			share.set(cache);
 		}
 #else
-			throw "ERROR: not available, not compiled with -lib tora";
+		throw "ERROR: not available, not compiled with -lib tora";
 #end
 	}
 
@@ -123,6 +123,22 @@ class ManagedModule {
 			catch (e:Dynamic)
 				log('ERROR thrown during finalizer, probable leak ($name): $e');
 		}
+	}
+
+	public static function getMtime():Float
+	{
+#if tora
+		if (!cacheAvailable || !cacheEnabled)
+			throw "ERROR: not available or not cached";
+		var share = new ToraRawShare<ToraModuleInfos>("tora-cache", function () return []);
+		var cache = share.get(true);
+		var infos = Lambda.find(cache, function (i) return Reflect.compareMethods(i.finalize, callFinalizers));
+		if (infos == null)
+			throw "ERROR: something went wrong here";
+		return infos.mtime;
+#else
+		throw "ERROR: not available, not compiled with -lib tora";
+#end
 	}
 
 	public dynamic static function log(msg:Dynamic, ?pos:haxe.PosInfos) {}
