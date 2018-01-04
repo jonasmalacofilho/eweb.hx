@@ -72,7 +72,7 @@ class Redirect {
 }
 
 class Dispatch {
-	static var prefixes = ["post", "get", "do"];
+	static var prefixes = ["post", "get", "head", "do"];
 
 	public var method : String;
 	public var parts : Array<String>;
