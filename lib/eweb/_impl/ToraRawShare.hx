@@ -1,5 +1,7 @@
 package eweb._impl;
 
+private typedef Handle = Dynamic;
+
 /*
 	Simplified version of tora.Share, losing persistence.
 	Based on and licensed as the original Tora.
@@ -21,7 +23,7 @@ package eweb._impl;
 */
 class ToraRawShare<T> {
 
-	var s : Dynamic;
+	var s : Handle;
 	public var name(default,null) : String;
 
 	public function new( name : String, ?makeData : Void -> T ) {
@@ -63,12 +65,12 @@ class ToraRawShare<T> {
 		share_commit_all = neko.Lib.load(tora.Api.lib,"share_commit_all",0);
 	}
 
-	static var share_init = null;
-	static var share_get;
-	static var share_set;
-	static var share_commit;
-	static var share_free;
-	static var share_commit_all;
+	static var share_init : neko.NativeString  -> ?(Void -> Dynamic) -> Handle = null;
+	static var share_get : Handle -> Bool -> Dynamic;
+	static var share_set : Handle -> Dynamic -> Void;
+	static var share_commit : Handle -> Void;
+	static var share_free : Handle -> Void;
+	static var share_commit_all : Void -> Void;
 
 }
 
