@@ -121,7 +121,7 @@ class Dispatch {
 			name = "default";
 		name = resolveName(name);
 		this.cfg = cfg;
-		var r = Reflect.field(cfg.rules, name);
+		var r = Reflect.field(cfg.rules, name != "" ? name : "/");
 		if( r == null ) {
 			r = Reflect.field(cfg.rules, "default");
 			if( r == null )
@@ -396,6 +396,8 @@ class Dispatch {
 	{
 		var p = getPrefix(name);
 		if (p == null) throw 'Cannot deprefix something without any prefix';
+		if (name.length == p.length)
+			return "/";
 		return name.charAt(p.length).toLowerCase() + name.substr(p.length + 1);
 	}
 
