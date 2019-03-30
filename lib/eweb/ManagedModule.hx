@@ -2,6 +2,11 @@ package eweb;
 
 import neko.Web in W;
 import eweb._impl.*;
+#if (haxe_ver >= 4)
+import sys.thread.Mutex;
+#else
+import neko.vm.Mutex;
+#end
 
 class ManagedModule {
 	public static var cacheAvailable(default,null) = #if tora Web.isTora #else false #end;
@@ -26,7 +31,7 @@ class ManagedModule {
 
 		log('fresh load of ${module.name} @ ${Date.fromTime(mtime)}');
 		var current = {
-			inUse : new neko.vm.Mutex(),
+			inUse : new Mutex(),
 			module : module,
 			mtime : mtime,
 			finalize : callFinalizers

@@ -1,4 +1,10 @@
 package eweb._impl;
 
-typedef ToraModuleInfos = Array<{ inUse:neko.vm.Mutex, module:neko.vm.Module, mtime:Float, finalize:Void->Void }>;
+#if (haxe_ver >= 4)
+import sys.thread.Mutex;
+#else
+import neko.vm.Mutex;
+#end
+
+typedef ToraModuleInfos = Array<{ inUse:Mutex, module:neko.vm.Module, mtime:Float, finalize:Void->Void }>;
 
