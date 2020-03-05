@@ -32,8 +32,21 @@ import neko.Web in W;
 @:access(neko.Web)
 abstract Web(W) from W {
 #if neko
-	static var date_get_tz = neko.Lib.load("std","date_get_tz", 0);
-	static function getTimezoneDelta():Float return 1e3*date_get_tz();
+	/**
+		Get the local timezone offset in milliseconds, if possible at `ctx` date
+
+		On Neko < 2.3.0 the `ctx` date is ignored.  On Neko >= 2.3.0 `ctx` is taken into
+		account, but is succeptible to the Y2038 bug.
+	**/
+	static var getTimezoneOffset:(ctx:Date)->Float = 
+		try {
+			// note: neko 2.3.0 breaks date_get_tz by changing its args and return
+			var prim = neko.Lib.load("std", "date_get_tz", 1);
+			function (ctx) return prim(Std.int(ctx.getTime()/1000)) * 60e3;
+		} catch (_:Dynamic) {
+			var prim = neko.Lib.load("std", "date_get_tz", 0);
+			function (_) return prim() * 1e3;
+		};
 #end
 	/**
 		Returns all GET and POST parameters.
@@ -79,7 +92,7 @@ abstract Web(W) from W {
 		var buf = new StringBuf();
 		buf.add(value);
 		if( expire != null ) {
-			expire = DateTools.delta(expire, -getTimezoneDelta());
+			expire = DateTools.delta(expire, -getTimezoneOffset(expire));
 			W.addPair(buf, "expires=", DateTools.format(expire, "%a, %d-%b-%Y %H:%M:%S GMT"));
 		}
 		W.addPair(buf, "domain=", domain);
